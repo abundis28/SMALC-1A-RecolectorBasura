@@ -1,0 +1,79 @@
+#include<Servo.h>
+Servo skere;
+#define abierto 100
+#define cerrado 10
+#define servo 10
+#define trigUltra 2
+#define echoUltra 3
+#define in4 4
+#define in3 5
+#define in2 6
+#define in1 7
+double distancia, duracion;
+
+double ultraS(){
+  digitalWrite(trigUltra, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigUltra,LOW);
+  duracion = pulseIn(echoUltra, HIGH);
+  distancia = (duracion*0.034)/2;
+  return distancia;
+}
+
+void parar(){
+    digitalWrite(in4,LOW);
+    digitalWrite(in3,LOW);
+    digitalWrite(in2,LOW);
+    digitalWrite(in1,LOW);
+}
+
+void setup() {
+  skere.attach(servo);
+  pinMode(servo,OUTPUT);
+  pinMode(trigUltra,OUTPUT);
+  pinMode(echoUltra,INPUT);
+  pinMode(in4,OUTPUT);
+  pinMode(in3,OUTPUT);
+  pinMode(in2,OUTPUT);
+  pinMode(in1,OUTPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  // Buscar basura
+  skere.write(cerrado);
+  Serial.println("Primera Fase");
+  while(ultraS() > 60){   
+    
+    digitalWrite(in4,HIGH);
+    digitalWrite(in3,LOW);
+    digitalWrite(in2,LOW);
+    digitalWrite(in1,HIGH);
+  }
+  parar();
+  delay(1000);
+  // Abrir Compuerta
+  skere.write(abierto);
+  delay(2000);
+  // Avanzar
+  Serial.println("Segunda Fase");
+  while(ultraS() > 10){ 
+    Serial.println(ultraS());   
+    digitalWrite(in4,HIGH);
+    digitalWrite(in3,LOW);
+    digitalWrite(in2,HIGH);
+    digitalWrite(in1,LOW);w
+  }
+  parar();
+  delay(1000);
+  Serial.println("Última Fase");
+  digitalWrite(in4,HIGH);
+  digitalWrite(in3,LOW);
+  digitalWrite(in2,HIGH);
+  digitalWrite(in1,LOW);
+  delay(2000);
+  parar();
+  delay(1000);
+  skere.write(cerrado);
+  delay(2000);
+}
